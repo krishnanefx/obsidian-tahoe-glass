@@ -1,0 +1,15 @@
+{
+  "name": "obsidian-tahoe-glass",
+  "version": "1.3.0",
+  "description": "Real refraction for the Tahoe theme's glass.",
+  "private": true,
+  "license": "MIT",
+  "author": "Krishnan Adaikkappan",
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "dev": "node esbuild.config.mjs --watch"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

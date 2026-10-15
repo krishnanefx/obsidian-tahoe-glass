@@ -1,0 +1,10 @@
+{
+  "id": "tahoe-glass",
+  "name": "Tahoe Glass",
+  "version": "1.3.0",
+  "minAppVersion": "1.13.0",
+  "description": "Companion to the Tahoe theme: real refraction for its glass, with dispersion, glare and a pointer highlight, a battery saver, and header cards on settings pages. macOS.",
+  "author": "Krishnan Adaikkappan",
+  "isDesktopOnly": true,
+  "authorUrl": "https://github.com/krishnanefx"
+}
