@@ -43,6 +43,10 @@ Tahoe is a set of plugins and a theme that work on their own and fit together.
 - **With [Tahoe Run](https://github.com/krishnanefx/obsidian-tahoe-run):** the ▶ Run capsules on code blocks get the same glass.
 <!-- /tahoe-family -->
 
+## Feedback
+
+Questions are welcome in [Discussions](https://github.com/krishnanefx/obsidian-tahoe-glass/discussions), and bugs and ideas in [Issues](https://github.com/krishnanefx/obsidian-tahoe-glass/issues/new/choose). If Tahoe Glass is useful to you, a star helps others find it.
+
 ## How it works
 
 Chromium accepts SVG filters in `backdrop-filter`. For each glass surface, Tahoe Glass renders a displacement map for its size and corner radii (a rounded-rectangle distance field with a convex rim) in a worker, wraps it in an `feDisplacementMap` filter and hands it to the theme as the `--tahoe-lens` variable. Maps are drawn once and reused for surfaces of about the same size.

@@ -1208,5 +1208,6 @@ class TahoeGlassSettingTab extends PluginSettingTab {
           })
         );
     }
+    containerEl.createDiv({ cls: "tahoe-source-link" }).createEl("a", { text: "Source, issues and ideas on GitHub", href: "https://github.com/krishnanefx/obsidian-tahoe-glass" });
   }
 }
