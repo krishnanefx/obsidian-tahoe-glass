@@ -1208,6 +1208,21 @@ class TahoeGlassSettingTab extends PluginSettingTab {
           })
         );
     }
+    new Setting(containerEl)
+      .setName("Reset")
+      .setDesc("Put every setting on this page back to how it came.")
+      .addButton((b) =>
+        b.setButtonText("Reset to defaults").onClick(async () => {
+          Object.assign(s, DEFAULT_SETTINGS);
+          await this.plugin.saveSettings();
+          if (Platform.isMacOS) {
+            this.plugin.teardownWindowControls();
+            const doc = this.plugin.settingsDocument();
+            if (s.windowControls && doc) this.plugin.placeWindowControls(doc);
+          }
+          this.display();
+        })
+      );
     containerEl.createDiv({ cls: "tahoe-source-link" }).createEl("a", { text: "Source, issues and ideas on GitHub", href: "https://github.com/krishnanefx/obsidian-tahoe-glass" });
   }
 }

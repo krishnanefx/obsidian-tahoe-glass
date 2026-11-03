@@ -17,6 +17,7 @@ It needs the Tahoe theme: with another theme there's no glass for it to bend.
 - **Battery saver**: on battery or in low power mode (or always), every surface gets the lighter glass and the pointer highlight rests.
 - **Header cards on settings pages**: the page's icon, name and a line about it at the top of each settings page.
 - **Window controls in the settings sidebar** (macOS): the Settings window's close, minimise and zoom buttons sit inside its floating sidebar.
+- **Reset to defaults**: puts every setting above back to how it came.
 
 If anything feels slow, *Record slow moments for 2 minutes* notes every frame over 50 ms and whose code ran in it, and saves a report you can share in an issue.
 
