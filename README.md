@@ -4,7 +4,7 @@
 
 **Install:** in Obsidian, open Settings → Community plugins → Browse, search for “Tahoe Glass”, then Install and Enable. ([Directory page](https://community.obsidian.md/plugins/tahoe-glass))
 
-![The command palette over a note: the coloured callouts behind it bend and blur at its edges](images/palette.png)
+![The command palette over a note: the coloured callouts behind it bend and blur at its edges](images/palette.gif)
 
 It needs the Tahoe theme: with another theme there's no glass for it to bend.
 
