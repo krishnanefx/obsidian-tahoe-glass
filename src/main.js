@@ -710,6 +710,12 @@ export default class TahoeGlassPlugin extends Plugin {
       icon: "gauge",
       callback: () => this.recordSlowMoments(2),
     });
+    this.addCommand({
+      id: "toggle-refraction",
+      name: "Toggle refraction",
+      icon: "glasses",
+      callback: () => this.change((s) => (s.refraction = !s.refraction), (s) => `Refraction ${s.refraction ? "on" : "off"}.`),
+    });
 
     this.app.workspace.onLayoutReady(() => {
       this.addHost(document);
@@ -927,6 +933,13 @@ export default class TahoeGlassPlugin extends Plugin {
     this.applyBodyClasses();
     this.applyGlassLevelEverywhere();
     this.hosts.forEach((host) => host.rebuild());
+  }
+
+  // Change a setting from a command: save it and say what it is now.
+  async change(mutate, message) {
+    mutate(this.settings);
+    await this.saveSettings();
+    new Notice(message(this.settings));
   }
 
   /* Settings header card ------------------------------------------------------- */

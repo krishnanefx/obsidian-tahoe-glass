@@ -2,6 +2,8 @@
 
 **Real refraction for the [Tahoe theme](https://github.com/krishnanefx/obsidian-tahoe-theme)'s glass.** CSS can blur what's behind a surface, but it can't bend it. Tahoe Glass draws a lens for each floating surface (the toolbar capsules, menus, the command palette, notices, the status bar) that matches its exact size and corners, so the content behind bends at the rim the way it does through a piece of glass, with a little colour split, glare along the edge, and a soft highlight that follows the pointer. Settings pages get a header card with the page's icon, name and what it's for.
 
+**Install:** in Obsidian, open Settings → Community plugins → Browse, search for “Tahoe Glass”, then Install and Enable. ([Directory page](https://community.obsidian.md/plugins/tahoe-glass))
+
 ![The command palette over a note: the coloured callouts behind it bend and blur at its edges](images/palette.png)
 
 It needs the Tahoe theme: with another theme there's no glass for it to bend.
