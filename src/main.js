@@ -716,6 +716,12 @@ export default class TahoeGlassPlugin extends Plugin {
       icon: "glasses",
       callback: () => this.change((s) => (s.refraction = !s.refraction), (s) => `Refraction ${s.refraction ? "on" : "off"}.`),
     });
+    this.addCommand({
+      id: "toggle-dispersion",
+      name: "Toggle chromatic dispersion",
+      icon: "rainbow",
+      callback: () => this.change((s) => (s.dispersion = !s.dispersion), (s) => `Chromatic dispersion ${s.dispersion ? "on" : "off"}.`),
+    });
 
     this.app.workspace.onLayoutReady(() => {
       this.addHost(document);
