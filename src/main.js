@@ -32,6 +32,19 @@ const DEFAULT_SETTINGS = {
   settingsHeader: true,
 };
 
+// The glass levels by name: Clear, Balanced, Tinted.
+const LEVEL_STEPS = [
+  [0, "Clear"],
+  [0.5, "Balanced"],
+  [1, "Tinted"],
+];
+
+function levelName(level) {
+  const n = Number(level);
+  if (!Number.isFinite(n)) return "Balanced";
+  return LEVEL_STEPS.reduce((best, step) => (Math.abs(step[0] - n) < Math.abs(best[0] - n) ? step : best))[1];
+}
+
 // Header-card copy for Obsidian's own settings pages.
 const PAGE_DESCRIPTIONS = {
   about: "Your account, app updates, language and the basics of how Obsidian works.",
@@ -721,6 +734,12 @@ export default class TahoeGlassPlugin extends Plugin {
       name: "Toggle chromatic dispersion",
       icon: "rainbow",
       callback: () => this.change((s) => (s.dispersion = !s.dispersion), (s) => `Chromatic dispersion ${s.dispersion ? "on" : "off"}.`),
+    });
+    this.addCommand({
+      id: "toggle-clear-tinted",
+      name: "Toggle Clear and Tinted glass",
+      icon: "contrast",
+      callback: () => this.change((s) => (s.glassLevel = Number(s.glassLevel) < 0.5 ? 1 : 0), (s) => `Glass: ${levelName(s.glassLevel)}.`),
     });
 
     this.app.workspace.onLayoutReady(() => {

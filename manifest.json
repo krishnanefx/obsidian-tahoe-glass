@@ -1,7 +1,7 @@
 {
   "id": "tahoe-glass",
   "name": "Tahoe Glass",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "minAppVersion": "1.13.0",
   "description": "Real refraction for the Tahoe theme's glass: the toolbar, menus and command palette bend what's behind them, with colour dispersion, glare and a pointer highlight, and a battery saver. macOS.",
   "author": "Krishnan Adaikkappan",
