@@ -741,6 +741,17 @@ export default class TahoeGlassPlugin extends Plugin {
       icon: "contrast",
       callback: () => this.change((s) => (s.glassLevel = Number(s.glassLevel) < 0.5 ? 1 : 0), (s) => `Glass: ${levelName(s.glassLevel)}.`),
     });
+    this.addCommand({
+      id: "toggle-battery-saver",
+      name: "Toggle battery saver",
+      icon: "battery-charging",
+      callback: async () => {
+        // On if it's resting now (whatever the reason), off otherwise.
+        const resting = this.saving;
+        await this.change((s) => (s.batterySaver = resting ? "off" : "always"), (s) => `Battery saver ${s.batterySaver === "always" ? "always on" : "off"}.`);
+        this.powerChanged();
+      },
+    });
 
     this.app.workspace.onLayoutReady(() => {
       this.addHost(document);
