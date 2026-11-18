@@ -752,6 +752,15 @@ export default class TahoeGlassPlugin extends Plugin {
         this.powerChanged();
       },
     });
+    this.addCommand({
+      id: "reset-glass-settings",
+      name: "Reset glass settings to defaults",
+      icon: "rotate-ccw",
+      callback: async () => {
+        await this.resetSettings();
+        new Notice("Glass settings reset.");
+      },
+    });
 
     this.app.workspace.onLayoutReady(() => {
       this.addHost(document);
@@ -976,6 +985,17 @@ export default class TahoeGlassPlugin extends Plugin {
     mutate(this.settings);
     await this.saveSettings();
     new Notice(message(this.settings));
+  }
+
+  async resetSettings() {
+    Object.assign(this.settings, DEFAULT_SETTINGS);
+    await this.saveSettings();
+    this.powerChanged();
+    if (Platform.isMacOS) {
+      this.teardownWindowControls();
+      const doc = this.settingsDocument();
+      if (this.settings.windowControls && doc) this.placeWindowControls(doc);
+    }
   }
 
   /* Settings header card ------------------------------------------------------- */
@@ -1262,13 +1282,7 @@ class TahoeGlassSettingTab extends PluginSettingTab {
       .setDesc("Put every setting on this page back to how it came.")
       .addButton((b) =>
         b.setButtonText("Reset to defaults").onClick(async () => {
-          Object.assign(s, DEFAULT_SETTINGS);
-          await this.plugin.saveSettings();
-          if (Platform.isMacOS) {
-            this.plugin.teardownWindowControls();
-            const doc = this.plugin.settingsDocument();
-            if (s.windowControls && doc) this.plugin.placeWindowControls(doc);
-          }
+          await this.plugin.resetSettings();
           this.display();
         })
       );
