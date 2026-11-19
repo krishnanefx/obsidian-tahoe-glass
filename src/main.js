@@ -761,6 +761,19 @@ export default class TahoeGlassPlugin extends Plugin {
         new Notice("Glass settings reset.");
       },
     });
+    this.addCommand({
+      id: "copy-glass-settings",
+      name: "Copy glass settings as JSON",
+      icon: "clipboard-copy",
+      callback: async () => {
+        try {
+          await navigator.clipboard.writeText(JSON.stringify(this.settings, null, 2));
+          new Notice("Copied the glass settings.");
+        } catch {
+          new Notice("Couldn't copy to the clipboard.");
+        }
+      },
+    });
 
     this.app.workspace.onLayoutReady(() => {
       this.addHost(document);
