@@ -30,6 +30,7 @@ const DEFAULT_SETTINGS = {
   glow: true,
   windowControls: true,
   settingsHeader: true,
+  glowStrength: 1, // how bright the pointer highlight is, as a multiple of the theme's own
 };
 
 // The glass levels by name: Clear, Balanced, Tinted.
@@ -446,7 +447,8 @@ class LensHost {
         const p = this.lastPointer;
         if (!el || !p) return;
         const r = el.getBoundingClientRect();
-        el.setCssProps({ "--tahoe-mx": `${(p.clientX - r.left).toFixed(1)}px`, "--tahoe-my": `${(p.clientY - r.top).toFixed(1)}px`, "--tahoe-glow": "1" });
+        const glow = Number(this.settings.glowStrength);
+        el.setCssProps({ "--tahoe-mx": `${(p.clientX - r.left).toFixed(1)}px`, "--tahoe-my": `${(p.clientY - r.top).toFixed(1)}px`, "--tahoe-glow": String(Number.isFinite(glow) ? glow : 1) });
       });
     }
   }
@@ -1262,6 +1264,20 @@ class TahoeGlassSettingTab extends PluginSettingTab {
           s.glow = v;
           await this.plugin.saveSettings();
         })
+      );
+
+    new Setting(containerEl)
+      .setName("Pointer highlight strength")
+      .setDesc("How bright the glow is. 1 is the theme's own brightness.")
+      .addSlider((sl) =>
+        sl
+          .setLimits(0.25, 1.5, 0.05)
+          .setValue(s.glowStrength)
+          .setDynamicTooltip()
+          .onChange(async (v) => {
+            s.glowStrength = v;
+            await this.plugin.saveSettings();
+          })
       );
 
     new Setting(containerEl)
