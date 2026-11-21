@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS = {
   windowControls: true,
   settingsHeader: true,
   glowStrength: 1, // how bright the pointer highlight is, as a multiple of the theme's own
+  focusedOnly: false, // refraction only in the window that has focus
 };
 
 // The glass levels by name: Clear, Balanced, Tinted.
@@ -110,6 +111,7 @@ class LensHost {
     this.glowFrame = 0;
     this.lastPointer = null;
     this.noticeContainer = null;
+    this.paused = false; // true while this window is unfocused and the settings say to rest
 
     this.svg = doc.createElementNS(SVG_NS, "svg");
     this.svg.setAttribute("aria-hidden", "true");
@@ -129,12 +131,32 @@ class LensHost {
     this.onPointerLeave = this.onPointerLeave.bind(this);
     doc.addEventListener("pointermove", this.onPointerMove, { passive: true });
     doc.documentElement.addEventListener("pointerleave", this.onPointerLeave, { passive: true });
+    this.onWindowState = () => this.updatePaused();
+    for (const evt of ["focus", "blur"]) this.win.addEventListener(evt, this.onWindowState);
 
+    this.updatePaused();
     this.requestScan();
   }
 
   get settings() {
     return this.plugin.settings;
+  }
+
+  // Refraction rests in a window that isn't focused ("Only in the focused window")
+  // and comes back when it is.
+  shouldPause() {
+    return !!(this.settings.focusedOnly && !this.doc.hasFocus());
+  }
+
+  updatePaused() {
+    const paused = this.shouldPause();
+    if (paused === this.paused) return;
+    this.paused = paused;
+    if (paused) {
+      for (const el of [...this.tracked.keys()]) this.untrack(el);
+    } else {
+      this.requestScan();
+    }
   }
 
   /* ---------- discovery ---------- */
@@ -149,7 +171,7 @@ class LensHost {
   }
 
   scan() {
-    if (!this.settings.refraction) return;
+    if (!this.settings.refraction || this.paused) return;
 
     const notices = this.doc.querySelector(".notice-container");
     if (notices && notices !== this.noticeContainer) {
@@ -482,6 +504,7 @@ class LensHost {
     this.resizeObserver.disconnect();
     this.doc.removeEventListener("pointermove", this.onPointerMove);
     this.doc.documentElement.removeEventListener("pointerleave", this.onPointerLeave);
+    for (const evt of ["focus", "blur"]) this.win.removeEventListener(evt, this.onWindowState);
     for (const el of [...this.tracked.keys()]) this.untrack(el);
     this.clearCaches();
     for (const el of this.doc.querySelectorAll("[style*='--tahoe-']")) {
@@ -992,7 +1015,10 @@ export default class TahoeGlassPlugin extends Plugin {
     await this.saveData(this.settings);
     this.applyBodyClasses();
     this.applyGlassLevelEverywhere();
-    this.hosts.forEach((host) => host.rebuild());
+    this.hosts.forEach((host) => {
+      host.updatePaused();
+      host.rebuild();
+    });
   }
 
   // Change a setting from a command: save it and say what it is now.
@@ -1278,6 +1304,16 @@ class TahoeGlassSettingTab extends PluginSettingTab {
             s.glowStrength = v;
             await this.plugin.saveSettings();
           })
+      );
+
+    new Setting(containerEl)
+      .setName("Refraction only in the focused window")
+      .setDesc("Rest the bend in windows you aren't using, so a second window costs nothing.")
+      .addToggle((t) =>
+        t.setValue(s.focusedOnly).onChange(async (v) => {
+          s.focusedOnly = v;
+          await this.plugin.saveSettings();
+        })
       );
 
     new Setting(containerEl)
