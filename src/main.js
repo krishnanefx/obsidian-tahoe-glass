@@ -32,6 +32,7 @@ const DEFAULT_SETTINGS = {
   settingsHeader: true,
   glowStrength: 1, // how bright the pointer highlight is, as a multiple of the theme's own
   focusedOnly: false, // refraction only in the window that has focus
+  offInFullscreen: false, // no refraction while the window is full screen
 };
 
 // The glass levels by name: Clear, Balanced, Tinted.
@@ -111,7 +112,7 @@ class LensHost {
     this.glowFrame = 0;
     this.lastPointer = null;
     this.noticeContainer = null;
-    this.paused = false; // true while this window is unfocused and the settings say to rest
+    this.paused = false; // true while this window is unfocused or full screen and the settings say to rest
 
     this.svg = doc.createElementNS(SVG_NS, "svg");
     this.svg.setAttribute("aria-hidden", "true");
@@ -132,7 +133,7 @@ class LensHost {
     doc.addEventListener("pointermove", this.onPointerMove, { passive: true });
     doc.documentElement.addEventListener("pointerleave", this.onPointerLeave, { passive: true });
     this.onWindowState = () => this.updatePaused();
-    for (const evt of ["focus", "blur"]) this.win.addEventListener(evt, this.onWindowState);
+    for (const evt of ["focus", "blur", "resize"]) this.win.addEventListener(evt, this.onWindowState);
 
     this.updatePaused();
     this.requestScan();
@@ -143,9 +144,12 @@ class LensHost {
   }
 
   // Refraction rests in a window that isn't focused ("Only in the focused window")
-  // and comes back when it is.
+  // or that fills the screen ("Off in full screen"), and comes back when that ends.
   shouldPause() {
-    return !!(this.settings.focusedOnly && !this.doc.hasFocus());
+    const s = this.settings;
+    if (s.focusedOnly && !this.doc.hasFocus()) return true;
+    const scr = this.win.screen;
+    return !!(s.offInFullscreen && scr && this.win.innerWidth >= scr.width && this.win.innerHeight >= scr.height);
   }
 
   updatePaused() {
@@ -504,7 +508,7 @@ class LensHost {
     this.resizeObserver.disconnect();
     this.doc.removeEventListener("pointermove", this.onPointerMove);
     this.doc.documentElement.removeEventListener("pointerleave", this.onPointerLeave);
-    for (const evt of ["focus", "blur"]) this.win.removeEventListener(evt, this.onWindowState);
+    for (const evt of ["focus", "blur", "resize"]) this.win.removeEventListener(evt, this.onWindowState);
     for (const el of [...this.tracked.keys()]) this.untrack(el);
     this.clearCaches();
     for (const el of this.doc.querySelectorAll("[style*='--tahoe-']")) {
@@ -1312,6 +1316,16 @@ class TahoeGlassSettingTab extends PluginSettingTab {
       .addToggle((t) =>
         t.setValue(s.focusedOnly).onChange(async (v) => {
           s.focusedOnly = v;
+          await this.plugin.saveSettings();
+        })
+      );
+
+    new Setting(containerEl)
+      .setName("Refraction off in full screen")
+      .setDesc("Rest the bend while a window fills the screen.")
+      .addToggle((t) =>
+        t.setValue(s.offInFullscreen).onChange(async (v) => {
+          s.offInFullscreen = v;
           await this.plugin.saveSettings();
         })
       );
