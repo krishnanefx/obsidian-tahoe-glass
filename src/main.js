@@ -31,11 +31,12 @@ const DEFAULT_SETTINGS = {
   windowControls: true,
   settingsHeader: true,
   glowStrength: 1, // how bright the pointer highlight is, as a multiple of the theme's own
+  statusItem: false, // a status bar item showing the glass level, click to cycle
   focusedOnly: false, // refraction only in the window that has focus
   offInFullscreen: false, // no refraction while the window is full screen
 };
 
-// The glass levels by name: Clear, Balanced, Tinted.
+// Where the status bar item and the toggle command move the glass level: Clear, Balanced, Tinted.
 const LEVEL_STEPS = [
   [0, "Clear"],
   [0.5, "Balanced"],
@@ -46,6 +47,13 @@ function levelName(level) {
   const n = Number(level);
   if (!Number.isFinite(n)) return "Balanced";
   return LEVEL_STEPS.reduce((best, step) => (Math.abs(step[0] - n) < Math.abs(best[0] - n) ? step : best))[1];
+}
+
+// The next step up from the current level, wrapping from Tinted back to Clear.
+function nextLevel(level) {
+  const n = Number(level);
+  const next = LEVEL_STEPS.find((step) => step[0] > (Number.isFinite(n) ? n : 0.5) + 0.01);
+  return (next || LEVEL_STEPS[0])[0];
 }
 
 // Header-card copy for Obsidian's own settings pages.
@@ -806,6 +814,7 @@ export default class TahoeGlassPlugin extends Plugin {
 
     this.app.workspace.onLayoutReady(() => {
       this.addHost(document);
+      this.updateStatusItem();
       this.applyBodyClasses();
 
       const rescan = () => this.hosts.forEach((host) => host.requestScan());
@@ -976,6 +985,7 @@ export default class TahoeGlassPlugin extends Plugin {
       if (doc && doc.body) doc.body.style.removeProperty("--tahoe-glass-level");
     });
     this.removeSettingsDecorations();
+    if (this.statusEl) this.statusEl.remove();
     this.hosts.forEach((host) => host.destroy());
     this.hosts.clear();
     this.mapMaker.destroy();
@@ -1019,6 +1029,7 @@ export default class TahoeGlassPlugin extends Plugin {
     await this.saveData(this.settings);
     this.applyBodyClasses();
     this.applyGlassLevelEverywhere();
+    this.updateStatusItem();
     this.hosts.forEach((host) => {
       host.updatePaused();
       host.rebuild();
@@ -1041,6 +1052,25 @@ export default class TahoeGlassPlugin extends Plugin {
       const doc = this.settingsDocument();
       if (this.settings.windowControls && doc) this.placeWindowControls(doc);
     }
+  }
+
+  // The status bar item: the glass level by name; a click moves to the next one.
+  updateStatusItem() {
+    if (!this.settings.statusItem) {
+      if (this.statusEl) this.statusEl.remove();
+      this.statusEl = null;
+      return;
+    }
+    if (!this.statusEl) {
+      this.statusEl = this.addStatusBarItem();
+      this.statusEl.addClass("mod-clickable");
+      this.statusEl.setAttribute("aria-label", "Glass level (click to change)");
+      this.registerDomEvent(this.statusEl, "click", async () => {
+        this.settings.glassLevel = nextLevel(this.settings.glassLevel);
+        await this.saveSettings();
+      });
+    }
+    this.statusEl.setText(`Glass: ${levelName(this.settings.glassLevel)}`);
   }
 
   /* Settings header card ------------------------------------------------------- */
@@ -1326,6 +1356,16 @@ class TahoeGlassSettingTab extends PluginSettingTab {
       .addToggle((t) =>
         t.setValue(s.offInFullscreen).onChange(async (v) => {
           s.offInFullscreen = v;
+          await this.plugin.saveSettings();
+        })
+      );
+
+    new Setting(containerEl)
+      .setName("Glass level in the status bar")
+      .setDesc("Show Clear, Balanced or Tinted at the bottom of the window. Click it to switch to the next one.")
+      .addToggle((t) =>
+        t.setValue(s.statusItem).onChange(async (v) => {
+          s.statusItem = v;
           await this.plugin.saveSettings();
         })
       );
