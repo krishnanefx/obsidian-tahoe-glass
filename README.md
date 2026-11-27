@@ -39,6 +39,8 @@ Tahoe is a set of plugins and a theme that work on their own and fit together.
 | **Tahoe Glass** | Real refraction for the Tahoe theme's glass, and header cards on settings pages. | this one |
 | **[Tahoe Organize](https://github.com/krishnanefx/obsidian-tahoe-organize)** | Keep a growing vault tidy: inbox triage, smart folders, colored tags, link suggestions, vault health, literature notes and text from images. | available |
 | **[Tahoe Intelligence](https://github.com/krishnanefx/obsidian-tahoe-intelligence)** | On-device AI for your notes: ask your notes, related notes, distilling permanent notes and more. | available |
+| **[Tahoe OCR](https://github.com/krishnanefx/obsidian-tahoe-ocr)** | Search the text in your images: screenshots, slides and scanned pages, read on your Mac. | available |
+| **[Tahoe Pinyin](https://github.com/krishnanefx/obsidian-tahoe-pinyin)** | Pinyin above the Chinese in your notes, with the right reading for each word, tone colors and a practice mode. | available |
 
 **Better together**
 
