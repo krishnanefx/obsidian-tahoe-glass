@@ -913,11 +913,15 @@ export default class TahoeGlassPlugin extends Plugin {
       slowestFrames: [...r.frames].sort((a, b) => b.ms - a.ms).slice(0, 15).map((f) => Object.assign({}, f, { scripts: f.scripts.sort((a, b) => b.ms - a.ms).slice(0, 4) })),
       slowInput: [...r.events].sort((a, b) => b.ms - a.ms).slice(0, 25),
     };
+    let saved = null;
     if (Platform.isDesktopApp) {
       try {
-        const dir = path.join(os.homedir(), "Library", "Caches", "tahoe-glass");
+        // The Mac's caches folder; elsewhere the user's local app data, or the temp folder.
+        const dir = Platform.isMacOS ? path.join(os.homedir(), "Library", "Caches", "tahoe-glass") : path.join(process.env.LOCALAPPDATA || process.env.XDG_CACHE_HOME || os.tmpdir(), "tahoe-glass");
         fs.mkdirSync(dir, { recursive: true });
-        fs.writeFileSync(path.join(dir, "slow-moments.json"), JSON.stringify(report, null, 1));
+        const file = path.join(dir, "slow-moments.json");
+        fs.writeFileSync(file, JSON.stringify(report, null, 1));
+        saved = file;
       } catch (e) {
         console.warn("Tahoe Glass: couldn't save the report", e);
       }
@@ -925,7 +929,7 @@ export default class TahoeGlassPlugin extends Plugin {
     console.debug("Tahoe Glass: slow moments", report);
     if (quiet) return;
     const top = Object.entries(report.timeInSlowFrames).slice(0, 3).map(([k, v]) => `${k} ${v} ms`).join(", ");
-    new Notice(report.slowFrames ? `${report.slowFrames} slow frames and ${r.events.length} slow clicks or keys in ${report.seconds} s. Most time: ${top}. Saved the report.` : `No slow moments in ${report.seconds} s.`, 10000);
+    new Notice(report.slowFrames ? `${report.slowFrames} slow frames and ${r.events.length} slow clicks or keys in ${report.seconds} s. Most time: ${top}.${saved ? ` Saved the report to ${saved}.` : ""}` : `No slow moments in ${report.seconds} s.`, 10000);
   }
 
   /* Battery saver --------------------------------------------------------------- */
